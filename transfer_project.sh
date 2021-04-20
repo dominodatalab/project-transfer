@@ -8,7 +8,7 @@ old_domino_url=${1:?"Old Domino URL is required"} && shift 1
 new_domino_url=${1:?"New Domino URL is required"} && shift 1
 project_names=(${@:?"Project Names are required"})
 
-# Define a subshell function (uses paranthases instead of curly braces)
+# Define a subshell function (uses parenthases instead of curly braces)
 # A subshell is used to reduce complexity of moving in and out of directories
 function upload_project() (
     # Open the project directory and remove the existing .domino directory
