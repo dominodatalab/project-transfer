@@ -15,10 +15,15 @@ function upload_project() (
     cd "${1}"
     rm -rf .domino
 
-    # Initialize the project and upload it to the Domino instance
+    # Initialize the project and pipe in an enter to use the default name
     printf '\n' | domino init
-    domino upload
+
+    # Upload the project and prevent failure if the project exists
+    domino upload || exit 0
 )
+
+# Move to /tmp to avoid conflict with /mnt domino files
+cd /tmp
 
 # Login to old Domino instance
 echo -e "\e[34mLogging into ${old_domino_url}\e[0m"
@@ -38,4 +43,7 @@ domino login "${new_domino_url}"
 for name in "${project_names[@]}"; do
     echo
     upload_project "${name}"
+
+    # Remove the temporary project to avoid collisions on consecutive runs
+    rm -rf "${name}"
 done
