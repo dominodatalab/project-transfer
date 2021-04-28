@@ -26,7 +26,7 @@ function upload_project() (
 cd /tmp
 
 # Login to old Domino instance
-echo -e "\e[34mLogging into ${old_domino_url}\e[0m"
+echo -e "\e[94mLogging into ${old_domino_url}\e[0m"
 domino login "${old_domino_url}"
 
 # Iterate over all the projects and download them to disk
@@ -36,11 +36,15 @@ for name in "${project_names[@]}"; do
 done
 
 # Login to the new Domino instance
-echo -e "\e[34m\nLogging into ${new_domino_url}\e[0m"
+echo -e "\e[94m\nLogging into ${new_domino_url}\e[0m"
 domino login "${new_domino_url}"
 
 # Iterate over all the projects and upload them to Domino
 for name in "${project_names[@]}"; do
+    # Remove the username from project name when admin is tranferring projects
+    # Does not affect project names that do not contain a username
+    name=$(echo "${name}" | cut -f 2 -d /)
+
     echo
     upload_project "${name}"
 
