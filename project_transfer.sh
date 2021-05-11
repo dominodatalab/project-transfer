@@ -15,11 +15,18 @@ function upload_project() (
     cd "${1}"
     rm -rf .domino
 
+    # Tar the project, excluding .domino and CLI log
+    tar --exclude='./domino.log' -cvzf "../${1}.tar.gz" .
+
+    # Delete everything and move the tar ball back to this directory
+    find . -not -name "${1}.tar.gz" -delete
+    mv "../${1}.tar.gz" .
+
     # Initialize the project and pipe in an enter to use the default name
     printf '\n' | domino init
 
-    # Upload the project and prevent failure if the project exists
-    domino upload || exit 0
+    # Kick off run to untar file, which wil force an upload
+    domino run --direct "tar -xzvf ${1}.tar.gz && rm -rf ${1}.tar.gz"
 )
 
 # Move to /tmp to avoid conflict with /mnt domino files
@@ -29,8 +36,11 @@ cd /tmp
 echo -e "\e[94mLogging into ${old_domino_url}\e[0m"
 domino login "${old_domino_url}"
 
-# Iterate over all the projects and download them to disk
+# Iterate over all the projects and download them to disk, then tar and delete
 for name in "${project_names[@]}"; do
+    simple_name=$(echo "${name}" | cut -f 2 -d /)
+    [[ -d "${simple_name}" ]] && rm -rf "${simple_name}"
+
     echo
     domino get "${name}"
 done
